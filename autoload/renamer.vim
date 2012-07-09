@@ -264,6 +264,7 @@ function renamer#Start(needNewWindow, startLine, startDirectory) "{{{1
   " Set the buffer type
   setlocal buftype=nofile
   setlocal noswapfile
+  setlocal bufhidden=delete
 
   " Set the buffer name if not already set
   if bufname('%') != 'VimRenamer'
