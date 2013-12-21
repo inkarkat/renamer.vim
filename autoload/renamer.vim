@@ -107,10 +107,6 @@ function renamer#Start(needNewWindow, startLine, startDirectory) "{{{1
   " Get an escaped version of b:renamerDirectory for later common use
   let b:renamerDirectoryEscaped = escape(b:renamerDirectory, '[]`~$*\')
 
-  " Set the title, since the renamer window won't have one
-  let &titlestring='Vim Renamer ('.b:renamerDirectory.') - '.v:servername
-  set title
-
   " Get a list of all the files
   " Since glob follows 'wildignore' settings and this may well be undesirable,
   " we may ignore such directives
