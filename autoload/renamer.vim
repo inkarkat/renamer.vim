@@ -12,7 +12,7 @@ let s:hashes = '### '
 let s:linksTo = 'LinksTo: '
 let s:linkPrefix = ' '.s:hashes.s:linksTo
 let s:header = [
-      \ "Renamer: change names then give command :Ren\n" ,
+      \ "Renamer: change names then give command :Ren (or :w if enabled)\n" ,
       \ "ENTER=chdir, T=toggle original files, F5=refresh, Ctrl-Del=delete\n" ,
       \ "Do not change the number of files listed (unless deleting)\n"
       \ ]
