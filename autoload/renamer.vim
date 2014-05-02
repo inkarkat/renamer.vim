@@ -12,8 +12,8 @@ let s:hashes = '### '
 let s:linksTo = 'LinksTo: '
 let s:linkPrefix = ' '.s:hashes.s:linksTo
 let s:header = [
-      \ "Renamer: change names then give command :Ren" . (g:RenamerSupportColonWToRename ? " (or :w)" : '') . "\n" ,
-      \ "ENTER=chdir, T=toggle original files, F5=refresh, Ctrl-Del=delete\n" ,
+      \ "Renamer: Change names, then execute with :Ren" . (g:RenamerSupportColonWToRename ? " (or :w)" : '') . ", or check with :RenTest\n" ,
+      \ "ENTER=chdir, Ctrl-Del=delete, F5=refresh, F6=toggle original files, F7=toggle recursive\n" ,
       \ "Do not change the number of files listed (unless deleting)\n"
       \ ]
 let s:headerLineCount = len(s:header) + 2 " + 2 because of extra lines added later
@@ -84,6 +84,7 @@ function renamer#Start(needNewWindow, startLine, startDirectory) "{{{1
       silent %delete _
     endif
     let b:renamerSavedDirectoryLocations = {}
+    let b:renamerIsRecursive = 0
   else
     " b) deleting the existing window content if renamer is already running
     silent %delete _
@@ -116,10 +117,11 @@ function renamer#Start(needNewWindow, startLine, startDirectory) "{{{1
   endif
 
   " Unix and Windows need different things due to differences in possible filenames
+  let globType = (b:renamerIsRecursive ? '/**' : '/*')
   if has('unix')
-    let pathfiles = renamer#Path(glob(b:renamerDirectoryEscaped . "/*"))
+    let pathfiles = renamer#Path(glob(b:renamerDirectoryEscaped . globType))
   else
-    let pathfiles = renamer#Path(glob(b:renamerDirectory . "/*"))
+    let pathfiles = renamer#Path(glob(b:renamerDirectory . globType))
   endif
   if pathfiles != "" && pathfiles !~ "\n$"
     let pathfiles .= "\n"
@@ -347,10 +349,11 @@ function renamer#Start(needNewWindow, startLine, startDirectory) "{{{1
   endif
 
   " Define the mapping to change directories
-  nnoremap <buffer> <silent> <CR> :call renamer#ChangeDirectory()<CR>
+  nnoremap <buffer> <silent> <CR> :<C-u>call renamer#ChangeDirectory()<CR>
   nnoremap <buffer> <silent> <C-Del> :call renamer#DeleteEntry()<CR>
-  nnoremap <buffer> <silent> T :call renamer#ToggleOriginalFilesWindow()<CR>
-  nnoremap <buffer> <silent> <F5> :call renamer#Refresh()<CR>
+  nnoremap <buffer> <silent> <F5> :<C-u>call renamer#Refresh()<CR>
+  nnoremap <buffer> <silent> <F6> :<C-u>call renamer#ToggleOriginalFilesWindow()<CR>
+  nnoremap <buffer> <silent> <F7> :<C-u>call renamer#ToggleRecursive()<CR>
 
   " Position the cursor
   if a:startLine > 0
@@ -731,6 +734,11 @@ endfunction
 function renamer#Refresh() "{{{1
   " Update the display in case directory contents have changed outside vim
   call renamer#Start(0,-1,b:renamerDirectory)
+endfunction
+
+function renamer#ToggleRecursive() "{{{1
+  let b:renamerIsRecursive = !b:renamerIsRecursive
+  call renamer#Refresh()
 endfunction
 
 " Support functions        {{{1
