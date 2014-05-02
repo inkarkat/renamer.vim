@@ -81,12 +81,12 @@ function renamer#Start(needNewWindow, startLine, startDirectory) "{{{1
     if bufname('') != '' || &mod
       new
     else
-      normal! 1GVGd
+      %delete _
     endif
     let b:renamerSavedDirectoryLocations = {}
   else
     " b) deleting the existing window content if renamer is already running
-    normal! 1GVGd
+    %delete _
   endif
 
   if g:RenamerOriginalFileWindowEnabled
@@ -255,7 +255,7 @@ function renamer#Start(needNewWindow, startLine, startDirectory) "{{{1
     put =b:renamerEntryDisplayText
   endif
   " Remove a blank line created by 'put'
-  normal! ggdd
+  1delete _
 
   " Set the buffer type
   setlocal buftype=nofile
@@ -452,13 +452,8 @@ function renamer#PerformRename() "{{{1
   let save_sc = &sc
   set report=10000 nosc
 
-  " Get the current lines, except the first
-  let saved_z = @z
-  normal! 1GVG"zy
-  let bufferText = @z
-  let @z = saved_z
-
-  let splitBufferText = split(bufferText, "\n")
+  " Get the current lines
+  let splitBufferText = getline(1, '$')
   let modifiedFileList = []
   let lineNo = 0
   let invalidFileCount = 0
