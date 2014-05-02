@@ -468,7 +468,7 @@ function renamer#PerformRename() "{{{1
   endfor
 
   if invalidFileCount
-    echoe invalidFileCount." name(s) had errors. Resolve and retry..."
+    call s:EchoErr(invalidFileCount." name(s) had errors. Resolve and retry...")
     return
   endif
 
@@ -476,7 +476,7 @@ function renamer#PerformRename() "{{{1
   let numModifiedFiles = len(modifiedFileList)
 
   if numModifiedFiles != numOriginalFiles
-    echoe 'Dir contains '.numOriginalFiles.' writeable files, but there are '.numModifiedFiles.' listed in buffer.  These numbers should be equal'
+    call s:EchoErr('Dir contains '.numOriginalFiles.' writeable files, but there are '.numModifiedFiles.' listed in buffer.  These numbers should be equal')
     return
   endif
 
@@ -512,7 +512,7 @@ function renamer#PerformRename() "{{{1
     for f in duplicatesFound
       echom f
     endfor
-    echoe "Fix the duplicates and try again"
+    call s:EchoErr("Fix the duplicates and try again")
     return
   endif
 
@@ -530,7 +530,7 @@ function renamer#PerformRename() "{{{1
           call mkdir(newDir, 'p')
         endif
         if !isdirectory(newDir)
-          echoe "Attempting to rename '".b:renamerOriginalPathfileList[i]."' to '".newName."' but directory ".newDir." couldn't be created!"
+          call s:EchoErr("Attempting to rename '".b:renamerOriginalPathfileList[i]."' to '".newName."' but directory ".newDir." couldn't be created!")
           " Continue anyway with the other files since we've already started renaming
         else
           " To allow moving files to other directories, slashes must be "escaped" in a special way
@@ -538,7 +538,7 @@ function renamer#PerformRename() "{{{1
           let newName = substitute(newName, '\\', '_BACKSLASH_', 'g')
           let uniqueIntermediateName = b:renamerDirectory.'/'.i.'_GOING_TO_'.newName
           if rename(b:renamerOriginalPathfileList[i], uniqueIntermediateName) != 0
-            echoe "Unable to rename '".b:renamerOriginalPathfileList[i]."' to '".uniqueIntermediateName."'"
+            call s:EchoErr("Unable to rename '".b:renamerOriginalPathfileList[i]."' to '".uniqueIntermediateName."'")
             " Continue anyway with the other files since we've already started renaming
           else
             let uniqueIntermediateNames += [ uniqueIntermediateName ]
@@ -557,11 +557,11 @@ function renamer#PerformRename() "{{{1
     let newName = substitute(newName, '_FORWSLASH_', '/', 'g')
     let newName = substitute(newName, '_BACKSLASH_', '\', 'g')
     if filereadable(newName)
-      echoe "A file called '".newName."' already exists - cancelling rename!"
+      call s:EchoErr("A file called '".newName."' already exists - cancelling rename!")
       " Continue anyway with the other files since we've already started renaming
     else
       if rename(intermediateName, newName) != 0
-        echoe "Unable to rename '".intermediateName."' to '".newName."'"
+        call s:EchoErr("Unable to rename '".intermediateName."' to '".newName."'")
         " Continue anyway with the other files since we've already started renaming
       endif
     endif
@@ -651,7 +651,7 @@ function renamer#DeleteEntry() "{{{1
       let i += 1
     endwhile
     if listIndex == -1
-      echoe "Renamer: DeleteEntry couldn't find entry '".entry."'"
+      call s:EchoErr("Renamer: DeleteEntry couldn't find entry '".entry."'")
       return
     endif
   endif
@@ -680,7 +680,7 @@ function renamer#DeleteEntry() "{{{1
         let errcode = delete(entryPath)
         if errcode != 0
           " Failed - error message
-          echoe "Unable to delete directory '".entryPath."' - this script is limited to only delete empty directories"
+          call s:EchoErr("Unable to delete directory '".entryPath."' - this script is limited to only delete empty directories")
           return
         endif
       endif
@@ -689,7 +689,7 @@ function renamer#DeleteEntry() "{{{1
       let errcode = delete(entryPath)
       if errcode != 0
         " Failed - error message
-        echoe "Unable to delete file '".entryPath."'"
+        call s:EchoErr("Unable to delete file '".entryPath."'")
         return
       endif
     endif
@@ -718,6 +718,13 @@ function renamer#Refresh() "{{{1
 endfunction
 
 " Support functions        {{{1
+
+function s:EchoErr( msg ) "{{{2
+  let v:errmsg = a:msg
+  echohl ErrorMsg
+  echomsg v:errmsg
+  echohl None
+endfunction
 
 function renamer#Path(p)       "{{{2
   " Make sure a path has proper form
