@@ -401,11 +401,11 @@ function renamer#CreateOriginalFileWindow(needNewWindow, maxWidth, entryDisplayT
     " delete the existing file entries
     wincmd h
     setlocal modifiable
-    exec (s:headerLineCount+1).',$d'
+    silent exec (s:headerLineCount+1).',$delete _'
   endif
 
   " Put the list of files/dirs
-  exec s:headerLineCount.'put =a:entryDisplayText'
+  silent exec s:headerLineCount.'put =a:entryDisplayText'
 
   " Set the buffer type
   setlocal buftype=nofile
